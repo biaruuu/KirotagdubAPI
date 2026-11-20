@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tagalog Dub</title>
+<style>
+  :root { --bg:#000; --card:#18181B; --line:#222226; --muted:#9A9AA2; --text:#fff; --danger:#ff6b6b; }
+  * { box-sizing: border-box; margin: 0; }
+  body { background: var(--bg); color: var(--text); font: 15px/1.45 "Satoshi", "Inter", system-ui, -apple-system, "Segoe UI", sans-serif; -webkit-font-smoothing: antialiased; }
+  main { max-width: 760px; margin: 0 auto; padding: 32px 16px 96px; }
+  h1 { font-size: 22px; font-weight: 500; letter-spacing: -.01em; }
+  h2 { font-size: 13px; font-weight: 500; color: var(--muted); margin: 36px 0 12px; }
+  .muted { color: var(--muted); }
+  header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  input[type=text], input[type=password], input[type=number], input[type=url] {
+    width: 100%; background: var(--card); color: var(--text); border: 1px solid var(--line); border-radius: 24px;
+    padding: 12px 18px; font: inherit; outline: none; }
+  input:focus { border-color: #4a4a50; }
+  input::placeholder { color: #6A6A70; }
+  button { font: inherit; font-weight: 500; border: 1px solid var(--line); background: transparent; color: var(--text);
+    border-radius: 24px; padding: 10px 18px; cursor: pointer; white-space: nowrap; }
+  button.primary { background: #fff; color: #000; border-color: #fff; }
+  button.quiet { border: 0; color: var(--muted); padding: 6px 10px; }
+  button.danger { color: var(--danger); }
+  button:disabled { opacity: .4; cursor: default; }
+  .row { display: flex; gap: 8px; align-items: center; }
+  .grow { flex: 1; min-width: 0; }
+  .list { display: flex; flex-direction: column; }
+  .item { display: flex; gap: 14px; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--line); cursor: pointer; }
+  .item:last-child { border-bottom: 0; }
+  .item img { width: 44px; height: 62px; object-fit: cover; border-radius: 8px; background: var(--card); flex: none; }
+  .item .t { font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ph { width: 44px; height: 62px; border-radius: 8px; background: var(--card); flex: none; }
+  .pill { font-size: 12px; border: 1px solid var(--line); border-radius: 20px; padding: 2px 10px; color: var(--muted); white-space: nowrap; }
+  .pill.on { background: #fff; color: #000; border-color: #fff; }
+  .card { background: var(--card); border-radius: 16px; padding: 16px; }
+  .ep { padding: 14px 0; border-bottom: 1px solid var(--line); }
+  .ep:last-child { border-bottom: 0; }
+  .ep .head { display: flex; align-items: center; gap: 10px; }
+  .ep .n { font-weight: 500; width: 34px; }
+  .bar { height: 3px; background: var(--line); border-radius: 2px; margin-top: 10px; overflow: hidden; }
+  .bar > i { display: block; height: 100%; width: 0; background: #fff; }
+  .tools { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  .toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); background: #fff; color: #000; padding: 10px 18px; border-radius: 24px; font-weight: 500; opacity: 0; pointer-events: none; transition: opacity .2s; max-width: 90vw; }
+  .toast.show { opacity: 1; }
+  .empty { color: var(--muted); padding: 20px 0; }
+  .back { margin: 20px 0 8px; }
+  .detail-head { display: flex; gap: 16px; align-items: center; margin-top: 8px; }
+  .detail-head img { width: 72px; height: 102px; object-fit: cover; border-radius: 8px; }
+  .add { display: grid; grid-template-columns: 90px 1fr 90px auto; gap: 8px; }
+  @media (max-width: 560px) { .add { grid-template-columns: 1fr 1fr; } .add button { grid-column: 1 / -1; } }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Tagalog Dub</h1>
+    <button class="quiet" id="signout" hidden>Sign out</button>
+  </header>
+
+  <section id="gate" hidden>
+    <h2>Admin key</h2>
+    <div class="row">
+      <input class="grow" type="password" id="key" placeholder="Paste your admin key" autocomplete="off">
+      <button class="primary" id="enter">Continue</button>
+    </div>
+    <p class="muted" style="margin-top:12px">Stored in this browser only.</p>
+  </section>
+
+  <section id="home" hidden>
+    <h2>Add an anime</h2>
+    <div class="row">
+      <input class="grow" type="text" id="q" placeholder="Search AniList by name, or paste an id">
+      <button class="primary" id="go">Search</button>
+    </div>
+    <div class="list" id="results"></div>
+    <h2>Your library</h2>
+    <div class="list" id="library"></div>
+  </section>
+
+  <section id="detail" hidden>
+    <button class="quiet back" id="back">← Back</button>
+    <div class="detail-head">
+      <img id="dcover" alt="">
+      <div>
+        <h1 id="dtitle"></h1>
+        <p class="muted" id="dmeta"></p>
+      </div>
+    </div>
+    <h2>Add an episode</h2>
+    <form class="add" id="addform">
+      <input type="number" id="enum" min="1" placeholder="No." required>
+      <input type="text" id="etitle" placeholder="Title (optional)">
+      <input type="text" id="equal" placeholder="720p">
+      <button class="primary" type="submit">Add</button>
+    </form>
+    <h2>Episodes</h2>
+    <div id="episodes"></div>
+    <div style="margin-top:40px"><button class="danger" id="delanime">Remove this anime</button></div>
+  </section>
+</main>
+<div class="toast" id="toast"></div>
+
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const store = { get: () => { try { return localStorage.getItem("tagdub_key") || ""; } catch { return ""; } },
+                  set: (v) => { try { v ? localStorage.setItem("tagdub_key", v) : localStorage.removeItem("tagdub_key"); } catch {} } };
+  let key = store.get();
+  let current = null;
+  let storage = "disk";
+
+  function h(tag, props = {}, ...kids) {
+    const el = document.createElement(tag);
+    for (const [k, v] of Object.entries(props)) {
+      if (k === "class") el.className = v; else if (k.startsWith("on")) el.addEventListener(k.slice(2), v); else if (v !== false && v != null) el.setAttribute(k, v === true ? "" : v);
+    }
+    for (const kid of kids.flat()) if (kid != null) el.append(kid.nodeType ? kid : document.createTextNode(kid));
+    return el;
+  }
+  let toastTimer;
+  function toast(msg) { const t = $("toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove("show"), 2600); }
+
+  async function api(path, opts = {}) {
+    const res = await fetch(path, { ...opts, headers: { "X-Api-Key": key, ...(opts.body && typeof opts.body === "string" ? { "Content-Type": "application/json" } : {}), ...opts.headers } });
+    const data = await res.json().catch(() => ({}));
+    if (res.status === 401) { show("gate"); throw new Error("Wrong admin key"); }
+    if (!res.ok) throw new Error(data.error || `Error ${res.status}`);
+    return data;
+  }
+  const send = (method, path, body) => api(path, { method, body: body === undefined ? undefined : JSON.stringify(body) });
+
+  function show(name) { for (const s of ["gate", "home", "detail"]) $(s).hidden = s !== name; $("signout").hidden = name === "gate"; }
+
+  // ---- gate
+  $("enter").onclick = async () => {
+    key = $("key").value.trim();
+    try { storage = (await api("/api/admin/check")).storage; store.set(key); await home(); } catch (e) { toast(e.message); }
+  };
+  $("key").addEventListener("keydown", (e) => { if (e.key === "Enter") $("enter").click(); });
+  $("signout").onclick = () => { store.set(""); key = ""; show("gate"); };
+
+  // ---- home
+  async function home() {
+    show("home");
+    const { anime } = await api("/api/anime");
+    const lib = $("library"); lib.replaceChildren();
+    if (!anime.length) lib.append(h("p", { class: "empty" }, "Nothing here yet. Search above to add your first anime."));
+    for (const a of anime) lib.append(row(a.cover, a.title.english || a.title.romaji, `${a.tagalogEpisodes} Tagalog episode${a.tagalogEpisodes === 1 ? "" : "s"}`, a.tagalogEpisodes > 0, () => open(a.anilistId)));
+  }
+  function row(cover, title, pill, on, click) {
+    return h("div", { class: "item", onclick: click },
+      cover ? h("img", { src: cover, alt: "", loading: "lazy" }) : h("div", { class: "ph" }),
+      h("div", { class: "grow" }, h("div", { class: "t" }, title)),
+      h("span", { class: "pill" + (on ? " on" : "") }, pill));
+  }
+  async function search() {
+    const q = $("q").value.trim(); if (q.length < 2 && !/^\d+$/.test(q)) return;
+    const out = $("results"); out.replaceChildren(h("p", { class: "empty" }, "Searching…"));
+    try {
+      if (/^\d+$/.test(q)) { await send("POST", "/api/admin/anime", { anilistId: Number(q) }); out.replaceChildren(); return open(Number(q)); }
+      const { results } = await api("/api/search?q=" + encodeURIComponent(q));
+      out.replaceChildren();
+      if (!results.length) out.append(h("p", { class: "empty" }, "No matches."));
+      for (const r of results) out.append(row(r.cover, r.title.english || r.title.romaji, r.tagalog.available ? `${r.tagalog.episodes} eps` : "Add", r.tagalog.available, async () => {
+        try { await send("POST", "/api/admin/anime", { anilistId: r.anilistId }); open(r.anilistId); } catch (e) { toast(e.message); }
+      }));
+    } catch (e) { out.replaceChildren(); toast(e.message); }
+  }
+  $("go").onclick = search;
+  $("q").addEventListener("keydown", (e) => { if (e.key === "Enter") search(); });
+
+  // ---- detail
+  async function open(id) {
+    try {
+      current = await api("/api/anime/" + id);
+      $("dcover").hidden = !current.cover; if (current.cover) $("dcover").src = current.cover;
+      $("dtitle").textContent = current.title.english || current.title.romaji;
+      $("dmeta").textContent = [current.year, current.format, current.totalEpisodes ? current.totalEpisodes + " episodes" : null, "AniList " + id].filter(Boolean).join(" · ");
+      const next = current.episodes.reduce((m, e) => Math.max(m, e.number), 0) + 1;
+      $("enum").value = next;
+      render(); show("detail");
+    } catch (e) { toast(e.message); }
+  }
+  $("back").onclick = home;
+
+  function render() {
+    const box = $("episodes"); box.replaceChildren();
+    if (!current.episodes.length) box.append(h("p", { class: "empty" }, "No episodes yet. Add one above, then upload its video."));
+    for (const e of current.episodes) {
+      const bar = h("i"), barWrap = h("div", { class: "bar", hidden: true }, bar);
+      const file = h("input", { type: "file", accept: "video/*,.mkv", hidden: true, onchange: () => upload(e, file.files[0], bar, barWrap) });
+      box.append(h("div", { class: "ep" },
+        h("div", { class: "head" },
+          h("span", { class: "n" }, e.number),
+          h("span", { class: "grow" }, e.title, e.quality ? h("span", { class: "muted" }, " · " + e.quality) : null),
+          h("span", { class: "pill" + (e.ready ? " on" : "") }, e.ready ? (e.hasFile ? size(e.size) : (e.sourceUrl || "").includes(".blob.vercel-storage.com") ? "Uploaded" : "Link") : "Needs video")),
+        barWrap,
+        h("div", { class: "tools" },
+          file,
+          h("button", { onclick: () => file.click() }, e.ready ? "Replace video" : "Upload video"),
+          h("button", { onclick: () => link(e) }, "Video link"),
+          h("button", { onclick: () => skip(e, "intro") }, "Intro"),
+          h("button", { onclick: () => skip(e, "outro") }, "Outro"),
+          h("button", { onclick: () => navigator.clipboard?.writeText(location.origin + e.watch).then(() => toast("API link copied")) }, "Copy API link"),
+          h("button", { class: "quiet danger", onclick: () => del(e) }, "Delete"))));
+    }
+  }
+  const size = (b) => b > 1e9 ? (b / 1e9).toFixed(1) + " GB" : (b / 1e6).toFixed(0) + " MB";
+  async function refresh() { current = await api("/api/anime/" + current.anilistId); render(); }
+
+  $("addform").onsubmit = async (ev) => {
+    ev.preventDefault();
+    try {
+      await send("POST", "/api/admin/episodes", { anilistId: current.anilistId, number: Number($("enum").value), title: $("etitle").value || null, quality: $("equal").value || null });
+      $("etitle").value = ""; await refresh(); $("enum").value = current.episodes.reduce((m, e) => Math.max(m, e.number), 0) + 1;
+    } catch (e) { toast(e.message); }
+  };
+
+  async function upload(e, f, bar, wrap) {
+    if (!f) return;
+    wrap.hidden = false; bar.style.width = "0";
+    if (storage === "blob") {
+      // Hosted version: the browser sends the video straight to Vercel Blob, then saves its address.
+      try {
+        const { upload: blobUpload } = await import("https://esm.sh/@vercel/blob@1/client");
+        const b = await blobUpload(`tagdub/${current.anilistId}/ep${e.number}-${f.name}`, f, {
+          access: "public", handleUploadUrl: "/api/admin/blob", clientPayload: key, contentType: f.type || "video/mp4",
+          onUploadProgress: (p) => { bar.style.width = p.percentage + "%"; },
+        });
+        await send("PATCH", "/api/admin/episodes/" + e.id, { sourceUrl: b.url });
+        toast("Uploaded"); await refresh();
+      } catch (er) { wrap.hidden = true; toast(er.message || "Upload failed"); }
+      return;
+    }
+    const x = new XMLHttpRequest();
+    x.open("PUT", `/api/admin/episodes/${e.id}/file?filename=${encodeURIComponent(f.name)}`);
+    x.setRequestHeader("X-Api-Key", key);
+    x.setRequestHeader("Content-Type", f.type || "video/mp4");
+    x.upload.onprogress = (p) => { if (p.lengthComputable) bar.style.width = (p.loaded / p.total * 100) + "%"; };
+    x.onload = async () => {
+      if (x.status === 200) { toast("Uploaded"); await refresh(); }
+      else { wrap.hidden = true; toast((JSON.parse(x.responseText || "{}").error) || "Upload failed"); }
+    };
+    x.onerror = () => { wrap.hidden = true; toast("Upload failed"); };
+    x.send(f);
+  }
+  async function link(e) {
+    const v = prompt("Video address (mp4 or m3u8). Leave empty to remove.", e.sourceUrl || "");
+    if (v === null) return;
+    try { await send("PATCH", "/api/admin/episodes/" + e.id, { sourceUrl: v.trim() || null }); await refresh(); } catch (er) { toast(er.message); }
+  }
+  async function skip(e, which) {
+    const cur = e[which] ? `${e[which].start}-${e[which].end}` : "";
+    const v = prompt(`${which} in seconds, like 85-175. Leave empty to clear.`, cur);
+    if (v === null) return;
+    const m = /^\s*(\d+(?:\.\d+)?)\s*-\s*(\d+(?:\.\d+)?)\s*$/.exec(v);
+    if (v.trim() && !m) return toast("Use the form 85-175");
+    try { await send("PATCH", "/api/admin/episodes/" + e.id, { [which]: m ? { start: Number(m[1]), end: Number(m[2]) } : null }); await refresh(); } catch (er) { toast(er.message); }
+  }
+  async function del(e) {
+    if (!confirm(`Delete episode ${e.number} and its video?`)) return;
+    try { await send("DELETE", "/api/admin/episodes/" + e.id); await refresh(); } catch (er) { toast(er.message); }
+  }
+  $("delanime").onclick = async () => {
+    if (!confirm("Remove this anime and all its uploaded videos?")) return;
+    try { await send("DELETE", "/api/admin/anime/" + current.anilistId); await home(); } catch (er) { toast(er.message); }
+  };
+
+  // ---- start
+  (async () => {
+    if (!key) return show("gate");
+    try { storage = (await api("/api/admin/check")).storage; await home(); } catch { show("gate"); }
+  })();
+})();
+</script>
+</body>
+</html>
