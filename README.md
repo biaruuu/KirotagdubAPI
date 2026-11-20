@@ -2,13 +2,13 @@
 
 Your own Tagalog-dub streaming source for Kiro. Upload an episode (or point to a video link), tie it to an anime by its **AniList id**, and the app can stream it like any other provider.
 
-TypeScript on Node 22 (runs directly, no build step), Express for routing, SQLite for data (built into Node, nothing to install), AniList for titles and covers.
+TypeScript on Node 22 (runs directly, no build step), plain Node `http` routing (no framework, so Vercel treats it as a normal function project), SQLite locally and Postgres on Vercel, AniList for titles and covers.
 
 ## Deploy on Vercel
 
 Vercel has no permanent disk and limits requests to 4.5 MB, so the hosted version keeps data in **Postgres** and videos in **Vercel Blob**. The browser uploads each video straight to Blob.
 
-1. Import this repo in Vercel (framework preset: Other). `vercel.json` already sets the build.
+1. Import this repo in Vercel (leave the framework preset on Other). `vercel.json` already sets the build.
 2. In the project's **Storage** tab add **Neon Postgres** (this creates `DATABASE_URL`) and **Blob** (creates `BLOB_READ_WRITE_TOKEN`).
 3. Under **Settings → Environment Variables** add `ADMIN_KEY` (any long secret you choose).
 4. Deploy, open your site, paste the admin key, search an anime, add episodes, upload videos.

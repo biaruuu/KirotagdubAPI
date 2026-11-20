@@ -1,7 +1,7 @@
 {
   "name": "tagdub-api",
   "version": "1.0.0",
-  "description": "Tagalog dub streaming API for Kiro: uploads, AniList lookup, SQLite.",
+  "description": "Tagalog dub streaming API for Kiro: uploads, AniList lookup, Postgres/SQLite.",
   "type": "module",
   "private": true,
   "engines": {
@@ -16,11 +16,9 @@
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.0.0",
-    "@vercel/blob": "^1.0.0",
-    "express": "^5.1.0"
+    "@vercel/blob": "^1.0.0"
   },
   "devDependencies": {
-    "@types/express": "^5.0.0",
     "@types/node": "^22.10.0",
     "typescript": "^5.7.0"
   }
